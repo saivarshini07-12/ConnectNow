@@ -1,0 +1,26 @@
+{
+  "name": "connectnow",
+  "version": "1.0.0",
+  "description": "Real-time chat application similar to WhatsApp",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "chat",
+    "real-time",
+    "socket.io",
+    "express"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.5.4",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
