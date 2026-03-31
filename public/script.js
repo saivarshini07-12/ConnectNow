@@ -12,6 +12,8 @@ const state = {
     isConnected: false,
     messages: [],
     activeUsers: [],
+    replyingTo: null, // Track which message we're replying to
+    selectedMessageId: null, // Track which message is highlighted
 };
 
 // ===== DOM Elements =====
@@ -32,6 +34,10 @@ const systemMessagesContainer = document.getElementById('systemMessagesContainer
 const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const leaveBtn = document.getElementById('leaveBtn');
+const replyPreview = document.getElementById('replyPreview');
+const replyUsername = document.getElementById('replyUsername');
+const replyText = document.getElementById('replyText');
+const cancelReplyBtn = document.getElementById('cancelReplyBtn');
 
 // ===== Form Validation =====
 
@@ -170,19 +176,76 @@ function sendMessage() {
 
     if (!messageText) return;
 
-    // Clear input
-    messageInput.value = '';
-
-    // Emit message to server
-    socket.emit('sendMessage', {
+    // Prepare message data
+    const messageData = {
         username: state.username,
         roomId: state.roomId,
         message: messageText,
         timestamp: new Date(),
-    });
+    };
+
+    // Include reply data if replying to someone
+    if (state.replyingTo) {
+        messageData.replyTo = {
+            username: state.replyingTo.username,
+            message: state.replyingTo.message,
+        };
+    }
+
+    // Clear input
+    messageInput.value = '';
+    cancelReply();
+
+    // Emit message to server
+    socket.emit('sendMessage', messageData);
 
     // Focus back on input
     messageInput.focus();
+}
+
+/**
+ * Set up reply to a specific message
+ * @param {object} message - Message to reply to
+ * @param {string} messageId - ID of the message element
+ */
+function setReply(message, messageId) {
+    // Remove previous highlight
+    if (state.selectedMessageId) {
+        const prevElement = document.getElementById(state.selectedMessageId);
+        if (prevElement) {
+            prevElement.classList.remove('highlighted');
+        }
+    }
+
+    // Highlight the selected message
+    state.selectedMessageId = messageId;
+    const messageElement = document.getElementById(messageId);
+    if (messageElement) {
+        messageElement.classList.add('highlighted');
+    }
+
+    state.replyingTo = message;
+    replyUsername.textContent = message.username;
+    replyText.textContent = message.message.substring(0, 100) + (message.message.length > 100 ? '...' : '');
+    replyPreview.style.display = 'flex';
+    messageInput.focus();
+}
+
+/**
+ * Cancel reply
+ */
+function cancelReply() {
+    // Remove highlight from message
+    if (state.selectedMessageId) {
+        const messageElement = document.getElementById(state.selectedMessageId);
+        if (messageElement) {
+            messageElement.classList.remove('highlighted');
+        }
+    }
+
+    state.replyingTo = null;
+    state.selectedMessageId = null;
+    replyPreview.style.display = 'none';
 }
 
 /**
@@ -193,6 +256,8 @@ function sendMessage() {
 function displayMessage(data, isSent = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+    const messageId = `msg-${Date.now()}-${Math.random()}`;
+    messageDiv.id = messageId;
 
     // Get time
     const messageTime = new Date(data.timestamp || Date.now());
@@ -202,15 +267,57 @@ function displayMessage(data, isSent = false) {
         hour12: true,
     });
 
+    // Build quoted message section if replying
+    let quotedHTML = '';
+    if (data.replyTo) {
+        quotedHTML = `
+            <div class="quoted-message">
+                <div class="quoted-sender">↳ ${escapeHtml(data.replyTo.username)}</div>
+                <div class="quoted-text">${escapeHtml(data.replyTo.message.substring(0, 100))}</div>
+            </div>
+        `;
+    }
+
     messageDiv.innerHTML = `
         <div class="message-bubble">
-            <div class="message-sender">${data.username}</div>
+            ${quotedHTML}
+            <div class="message-sender">${escapeHtml(data.username)}</div>
             <div class="message-text">${escapeHtml(data.message)}</div>
             <div class="message-time">${timeString}</div>
+            ${!isSent ? `<button class="reply-btn" data-message-id="${messageId}">↩️ Reply</button>` : ''}
         </div>
     `;
 
     messagesContainer.appendChild(messageDiv);
+
+    // Add click event listener to select message for reply
+    messageDiv.addEventListener('click', () => {
+        setReply({
+            username: data.username,
+            message: data.message,
+        }, messageId);
+    });
+
+    // Add reply button event listener for received messages
+    if (!isSent) {
+        const replyBtn = messageDiv.querySelector('.reply-btn');
+        if (replyBtn) {
+            replyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering message click
+                setReply({
+                    username: data.username,
+                    message: data.message,
+                }, messageId);
+            });
+            // Add hover effect to show reply button
+            messageDiv.addEventListener('mouseenter', () => {
+                replyBtn.style.opacity = '1';
+            });
+            messageDiv.addEventListener('mouseleave', () => {
+                replyBtn.style.opacity = '0.6';
+            });
+        }
+    }
 
     // Store message in state
     state.messages.push(data);
@@ -369,6 +476,9 @@ sendBtn.addEventListener('click', sendMessage);
 
 // Leave Room Button
 leaveBtn.addEventListener('click', leaveRoom);
+
+// Cancel Reply Button
+cancelReplyBtn.addEventListener('click', cancelReply);
 
 // Send message on Enter key
 messageInput.addEventListener('keypress', (e) => {

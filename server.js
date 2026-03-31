@@ -144,11 +144,11 @@ io.on('connection', (socket) => {
     /**
      * Handle sending a message
      * Event: 'sendMessage'
-     * Payload: { username, roomId, message, timestamp }
+     * Payload: { username, roomId, message, timestamp, replyTo? }
      */
     socket.on('sendMessage', (data) => {
         try {
-            const { username, roomId, message } = data;
+            const { username, roomId, message, replyTo } = data;
 
             // Validate input
             if (!username || !roomId || !message) {
@@ -163,13 +163,21 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            // Broadcast message to all users in room
-            io.to(roomId).emit('receiveMessage', {
+            // Prepare broadcast data
+            const broadcastData = {
                 username: username,
                 message: message,
                 roomId: roomId,
                 timestamp: new Date(),
-            });
+            };
+
+            // Include reply data if present
+            if (replyTo) {
+                broadcastData.replyTo = replyTo;
+            }
+
+            // Broadcast message to all users in room
+            io.to(roomId).emit('receiveMessage', broadcastData);
 
             console.log(`💬 Message from "${username}" in room "${roomId}": ${message.substring(0, 50)}...`);
         } catch (error) {
