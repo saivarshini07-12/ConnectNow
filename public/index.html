@@ -7,43 +7,120 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Join/Create Room Screen (Page 1) -->
+    <!-- Join/Create Room Screen (Page 1) - Modern Split Layout -->
     <div id="joinPage" class="page active">
-        <div class="container join-container">
-            <div class="logo-section">
-                <h1 class="app-title">ConnectNow</h1>
-                <p class="app-subtitle">Real-time Chat Application</p>
+        <!-- Left Side: Join Form -->
+        <div class="join-left">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h1 class="form-title">ConnectNow</h1>
+                    <p class="form-subtitle">Join the conversation</p>
+                </div>
+
+                <form class="join-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            placeholder="Enter your name"
+                            maxlength="20"
+                            required
+                        >
+                        <span class="input-icon">👤</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roomId">Room ID</label>
+                        <input 
+                            type="text" 
+                            id="roomId" 
+                            placeholder="Enter or create room"
+                            maxlength="20"
+                            required
+                        >
+                        <span class="input-icon">🔐</span>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" id="joinBtn" class="btn btn-primary">
+                            <span class="btn-icon">→</span>
+                            Join Room
+                        </button>
+                        <button type="button" id="createBtn" class="btn btn-secondary">
+                            <span class="btn-icon">+</span>
+                            Create Room
+                        </button>
+                    </div>
+
+                    <div id="joinError" class="error-message"></div>
+                </form>
+
+                <p class="form-footer">
+                    No account needed. Join instantly! 🚀
+                </p>
             </div>
+        </div>
 
-            <div class="form-card">
-                <h2>Join or Create a Room</h2>
+        <!-- Right Side: Visual Content -->
+        <div class="join-right">
+            <div class="hero-content">
+                <!-- Animated background elements -->
+                <div class="floating-gradient"></div>
                 
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        placeholder="Enter your name"
-                        maxlength="20"
-                    >
+                <!-- Main Heading -->
+                <div class="hero-section">
+                    <h2 class="hero-title">Connect with Anyone, Anywhere</h2>
+                    <p class="hero-subtitle">Real-time chat with rooms and instant messaging</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="roomId">Room ID</label>
-                    <input 
-                        type="text" 
-                        id="roomId" 
-                        placeholder="Enter or create room ID"
-                        maxlength="20"
-                    >
+                <!-- Chat Bubbles Container -->
+                <div class="chat-bubbles-container">
+                    <!-- Bubble 1 -->
+                    <div class="chat-bubble bubble-1">
+                        <div class="bubble-content">👋 Hey there!</div>
+                        <div class="bubble-time">Just now</div>
+                    </div>
+
+                    <!-- Bubble 2 -->
+                    <div class="chat-bubble bubble-2">
+                        <div class="bubble-content">Welcome to ConnectNow 🎉</div>
+                        <div class="bubble-time">Just now</div>
+                    </div>
+
+                    <!-- Bubble 3 -->
+                    <div class="chat-bubble bubble-3">
+                        <div class="bubble-content">Let's start chatting! 💬</div>
+                        <div class="bubble-time">Just now</div>
+                    </div>
                 </div>
 
-                <div class="button-group">
-                    <button id="joinBtn" class="btn btn-primary">Join Room</button>
-                    <button id="createBtn" class="btn btn-secondary">Create Room</button>
-                </div>
+                <!-- Floating Icons -->
+                <div class="floating-icon icon-1">💬</div>
+                <div class="floating-icon icon-2">✨</div>
+                <div class="floating-icon icon-3">🔥</div>
+                <div class="floating-icon icon-4">⚡</div>
+                <div class="floating-icon icon-5">🎯</div>
 
-                <div id="joinError" class="error-message"></div>
+                <!-- Feature Pills -->
+                <div class="features-grid">
+                    <div class="feature-pill">
+                        <span class="feature-icon">⚡</span>
+                        <span class="feature-text">Instant</span>
+                    </div>
+                    <div class="feature-pill">
+                        <span class="feature-icon">🔒</span>
+                        <span class="feature-text">Secure</span>
+                    </div>
+                    <div class="feature-pill">
+                        <span class="feature-icon">👥</span>
+                        <span class="feature-text">Groups</span>
+                    </div>
+                    <div class="feature-pill">
+                        <span class="feature-icon">📱</span>
+                        <span class="feature-text">Mobile</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
